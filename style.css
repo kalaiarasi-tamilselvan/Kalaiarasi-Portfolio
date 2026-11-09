@@ -169,3 +169,20 @@ nav {
     text-align: center;
     z-index: 1000;
 }
+.home-buttons {
+    margin-top: 25px;
+}
+
+.home-buttons a {
+    display: inline-block;
+    background-color: #2563eb;
+    color: white;
+    padding: 12px 20px;
+    margin: 8px;
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+.home-buttons a:hover {
+    background-color: #1e3a8a;
+}
