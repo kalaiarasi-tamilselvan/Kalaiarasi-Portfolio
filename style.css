@@ -127,3 +127,10 @@ nav a:hover {
     background-color: #2563eb;
     transform: scale(1.05);
 }
+html {
+    scroll-behavior: smooth;
+}
+
+section {
+    scroll-margin-top: 30px;
+}
