@@ -186,3 +186,12 @@ nav {
 .home-buttons a:hover {
     background-color: #1e3a8a;
 }
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+section {
+    scroll-margin-top: 80px;
+}
