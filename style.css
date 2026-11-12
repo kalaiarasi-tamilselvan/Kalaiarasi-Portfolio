@@ -198,3 +198,9 @@ section {
 header {
     scroll-margin-top: 0;
 }
+section {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
