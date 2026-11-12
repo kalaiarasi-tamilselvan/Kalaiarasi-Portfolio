@@ -195,3 +195,6 @@ nav {
 section {
     scroll-margin-top: 80px;
 }
+header {
+    scroll-margin-top: 0;
+}
