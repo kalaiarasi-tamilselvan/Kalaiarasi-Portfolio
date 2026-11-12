@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collection of Games</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; background: #f4f6f9; color: #333; text-align: center; }
+header { background: #172554; color: white; padding: 30px 20px; }
+header p { color: #bfdbfe; margin-top: 8px; }
+.back { display: inline-block; margin-top: 15px; color: white; background: #2563eb; padding: 8px 16px; border-radius: 8px; text-decoration: none; }
+section { background: white; margin: 25px auto; padding: 22px; width: 92%; max-width: 480px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { color: #2563eb; margin-bottom: 12px; }
+button { background: #2563eb; color: white; border: none; border-radius: 8px; padding: 12px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
+button:hover { background: #172554; }
+input { padding: 10px; font-size: 16px; width: 110px; border: 1px solid #bbb; border-radius: 8px; text-align: center; }
+.msg { margin: 12px 0; min-height: 24px; font-weight: bold; }
+#board { display: grid; grid-template-columns: repeat(3, 80px); gap: 8px; justify-content: center; margin: 12px 0; }
+#board button { width: 80px; height: 80px; font-size: 32px; margin: 0; background: #1e3a8a; }
+#board button:hover { background: #2563eb; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Collection of Games</h1>
+  <p>Three simple games built with HTML, CSS and JavaScript</p>
+  <a class="back" href="index.html">Back to Portfolio</a>
+</header>
+
+<!-- GAME 1: Tic-Tac-Toe -->
+<section>
+  <h2>Tic-Tac-Toe</h2>
+  <p>Two players, X goes first.</p>
+  <div id="board"></div>
+  <div class="msg" id="tttMsg"></div>
+  <button onclick="resetTTT()">Restart</button>
+</section>
+
+<!-- GAME 2: Number Guessing -->
+<section>
+  <h2>Guess the Number</h2>
+  <p>Guess a number between 1 and 100.</p>
+  <input type="number" id="guess" min="1" max="100">
+  <button onclick="checkGuess()">Guess</button>
+  <div class="msg" id="guessMsg"></div>
+  <button onclick="resetGuess()">New Game</button>
+</section>
+
+<!-- GAME 3: Rock Paper Scissors -->
+<section>
+  <h2>Rock Paper Scissors</h2>
+  <button onclick="playRPS('Rock')">Rock</button>
+  <button onclick="playRPS('Paper')">Paper</button>
+  <button onclick="playRPS('Scissors')">Scissors</button>
+  <div class="msg" id="rpsMsg"></div>
+  <p id="score">You: 0 | Computer: 0</p>
+</section>
+
+<script>
+// ---------- Tic-Tac-Toe ----------
+let cells, turn, over;
+const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+function resetTTT() {
+  cells = Array(9).fill('');
+  turn = 'X';
+  over = false;
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const b = document.createElement('button');
+    b.onclick = () => move(i);
+    board.appendChild(b);
+  }
+  document.getElementById('tttMsg').textContent = "X's turn";
+}
+
+function move(i) {
+  if (over || cells[i]) return;
+  cells[i] = turn;
+  document.getElementById('board').children[i].textContent = turn;
+  const msg = document.getElementById('tttMsg');
+  if (lines.some(l => l.every(k => cells[k] === turn))) {
+    msg.textContent = turn + ' wins!';
+    over = true;
+  } else if (cells.every(c => c)) {
+    msg.textContent = "It's a draw!";
+    over = true;
+  } else {
+    turn = turn === 'X' ? 'O' : 'X';
+    msg.textContent = turn + "'s turn";
+  }
+}
+
+// ---------- Guess the Number ----------
+let secret, tries;
+
+function resetGuess() {
+  secret = Math.floor(Math.random() * 100) + 1;
+  tries = 0;
+  document.getElementById('guess').value = '';
+  document.getElementById('guessMsg').textContent = '';
+}
+
+function checkGuess() {
+  const n = Number(document.getElementById('guess').value);
+  const msg = document.getElementById('guessMsg');
+  if (!n || n < 1 || n > 100) { msg.textContent = 'Enter a number from 1 to 100.'; return; }
+  tries++;
+  if (n === secret) msg.textContent = 'Correct! You took ' + tries + ' tries.';
+  else if (n < secret) msg.textContent = 'Too low. Try a bigger number.';
+  else msg.textContent = 'Too high. Try a smaller number.';
+}
+
+// ---------- Rock Paper Scissors ----------
+let you = 0, comp = 0;
+
+function playRPS(choice) {
+  const options = ['Rock', 'Paper', 'Scissors'];
+  const pc = options[Math.floor(Math.random() * 3)];
+  let result;
+  if (choice === pc) result = 'Draw!';
+  else if ((choice === 'Rock' && pc === 'Scissors') ||
+           (choice === 'Paper' && pc === 'Rock') ||
+           (choice === 'Scissors' && pc === 'Paper')) { result = 'You win!'; you++; }
+  else { result = 'Computer wins!'; comp++; }
+  document.getElementById('rpsMsg').textContent = 'You: ' + choice + ' | Computer: ' + pc + ' - ' + result;
+  document.getElementById('score').textContent = 'You: ' + you + ' | Computer: ' + comp;
+}
+
+resetTTT();
+resetGuess();
+</script>
+</body>
+</html>
