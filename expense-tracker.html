@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Expense Tracker</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; background: #f4f6f9; color: #333; text-align: center; }
+header { background: #172554; color: white; padding: 28px 20px; }
+header p { color: #bfdbfe; margin-top: 8px; }
+.back { display: inline-block; margin-top: 14px; color: white; background: #2563eb; padding: 8px 16px; border-radius: 8px; text-decoration: none; }
+section { background: white; margin: 22px auto; padding: 20px; width: 92%; max-width: 520px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { color: #2563eb; margin-bottom: 12px; }
+input, select { padding: 10px; font-size: 16px; margin: 5px; border: 1px solid #bbb; border-radius: 8px; width: 90%; max-width: 300px; }
+button { background: #2563eb; color: white; border: none; border-radius: 8px; padding: 11px 20px; margin: 6px; font-size: 16px; cursor: pointer; }
+button:hover { background: #172554; }
+.total { font-size: 28px; font-weight: bold; color: #172554; }
+.row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; text-align: left; }
+.row small { color: #777; display: block; }
+.row button { background: #b91c1c; padding: 6px 12px; font-size: 14px; margin: 0 0 0 10px; }
+.bar-line { text-align: left; margin: 10px 0; font-size: 14px; }
+.bar { height: 14px; background: #2563eb; border-radius: 7px; margin-top: 4px; }
+.error { color: #b91c1c; min-height: 20px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Expense Tracker</h1>
+  <p>Track your spending. Data is saved in your browser.</p>
+  <a class="back" href="index.html">Back to Portfolio</a>
+</header>
+
+<section>
+  <h2>Total Spent</h2>
+  <div class="total" id="total">Rs. 0</div>
+</section>
+
+<section>
+  <h2>Add Expense</h2>
+  <input type="text" id="title" placeholder="What did you spend on?">
+  <input type="number" id="amount" placeholder="Amount (Rs.)" min="1">
+  <select id="category">
+    <option>Food</option>
+    <option>Travel</option>
+    <option>Shopping</option>
+    <option>Bills</option>
+    <option>Other</option>
+  </select>
+  <div class="error" id="error"></div>
+  <button onclick="addExpense()">Add</button>
+</section>
+
+<section>
+  <h2>By Category</h2>
+  <div id="chart"></div>
+</section>
+
+<section>
+  <h2>All Expenses</h2>
+  <div id="list"></div>
+  <button onclick="clearAll()">Clear All</button>
+</section>
+
+<script>
+let expenses = [];
+
+// Load saved data (safe if storage is unavailable)
+try {
+  expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+} catch (e) {
+  expenses = [];
+}
+
+function save() {
+  try { localStorage.setItem("expenses", JSON.stringify(expenses)); } catch (e) {}
+}
+
+function addExpense() {
+  const title = document.getElementById("title").value.trim();
+  const amount = Number(document.getElementById("amount").value);
+  const category = document.getElementById("category").value;
+  const error = document.getElementById("error");
+
+  if (!title) { error.textContent = "Please enter a title."; return; }
+  if (!amount || amount <= 0) { error.textContent = "Enter an amount greater than 0."; return; }
+
+  error.textContent = "";
+  expenses.push({ id: Date.now(), title, amount, category });
+  document.getElementById("title").value = "";
+  document.getElementById("amount").value = "";
+  save();
+  render();
+}
+
+function deleteExpense(id) {
+  expenses = expenses.filter(e => e.id !== id);
+  save();
+  render();
+}
+
+function clearAll() {
+  if (expenses.length && confirm("Delete all expenses?")) {
+    expenses = [];
+    save();
+    render();
+  }
+}
+
+function render() {
+  const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+  document.getElementById("total").textContent = "Rs. " + total;
+
+  // Expense list (newest first)
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  if (!expenses.length) list.textContent = "No expenses yet. Add your first one above.";
+  [...expenses].reverse().forEach(e => {
+    const row = document.createElement("div");
+    row.className = "row";
+    const info = document.createElement("div");
+    const name = document.createElement("strong");
+    name.textContent = e.title;
+    const meta = document.createElement("small");
+    meta.textContent = e.category + " - Rs. " + e.amount;
+    info.append(name, meta);
+    const del = document.createElement("button");
+    del.textContent = "Delete";
+    del.onclick = () => deleteExpense(e.id);
+    row.append(info, del);
+    list.appendChild(row);
+  });
+
+  // Category chart
+  const chart = document.getElementById("chart");
+  chart.innerHTML = "";
+  const totals = {};
+  expenses.forEach(e => { totals[e.category] = (totals[e.category] || 0) + e.amount; });
+  const max = Math.max(0, ...Object.values(totals));
+  if (!max) chart.textContent = "No data yet.";
+  Object.entries(totals).forEach(([cat, amt]) => {
+    const line = document.createElement("div");
+    line.className = "bar-line";
+    line.textContent = cat + ": Rs. " + amt;
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.style.width = (amt / max * 100) + "%";
+    line.appendChild(bar);
+    chart.appendChild(line);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
